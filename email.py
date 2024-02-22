@@ -2,7 +2,7 @@ import smtplib
 import datetime
 
 email_address = input("Enter your email address: ")
-email_password = "raunak@ut"
+email_password = "your pass"
 
 smtp_server = "smtp.gmail.com"
 smtp_port = 587
