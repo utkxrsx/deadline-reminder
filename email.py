@@ -1,31 +1,47 @@
-import smtplib
 import datetime
+import smtplib
+import time
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
-email_address = input("Enter your email address: ")
-email_password = "your pass"
+SMTP_SERVER = 'smtp.gmail.com'
+SMTP_PORT = 587
+SENDER_EMAIL = 'your mail'
+SENDER_PASSWORD = 'your pass'
+RECIPIENT_EMAIL = input("Enter the recipient's email address: ")
 
-smtp_server = "smtp.gmail.com"
-smtp_port = 587
+def send_email(subject, body):
+    try:
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
 
-recipient_address = input("Enter the recipient's email address: ")
+        msg = MIMEMultipart()
+        msg['From'] = SENDER_EMAIL
+        msg['To'] = RECIPIENT_EMAIL
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain'))
 
-assignment_name = "Homework 1"
-deadline = datetime.datetime(2024, 2, 24)
+        server.sendmail(SENDER_EMAIL, RECIPIENT_EMAIL, msg.as_string())
+        print('Email notification sent successfully!')
 
-if datetime.datetime.now() > deadline:
-    print(f"{assignment_name} is overdue!")
-else:
-    days_until_deadline = (deadline - datetime.datetime.now()).days
+        server.quit()
+    except Exception as e:
+        print('Error sending email notification:', e)
 
-    if days_until_deadline < 3:
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(email_address, email_password)
+def main():
+    while True:
+        print("You will be notified daily by 23:19.")
+        
+        now = datetime.datetime.now()
+        if now.hour == 23 and now.minute == 19:
+            subject = 'Daily Notification'
+            body = 'This is your daily notification. Have a great day!'
+            send_email(subject, body)
 
-            message = f"From: {email_address}\r\nTo: {recipient_address}\r\nSubject: {assignment_name} Assignment Reminder\r\n\r\nThis is a reminder that the {assignment_name} assignment is due in {days_until_deadline} days."
+            time.sleep(60)
 
-            server.sendmail(email_address, recipient_address, message)
+        time.sleep(60)
 
-            print(f"Reminder email for {assignment_name} has been sent.")
-    else:
-        print(f"{assignment_name} is not due for another {days_until_deadline} days.")
+if __name__ == '__main__':
+    main()
